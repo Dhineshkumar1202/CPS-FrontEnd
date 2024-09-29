@@ -1,31 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../services/api'; // Adjust the import path as needed
 
 const Admin = () => {
-    const [placementDrives, setPlacementDrives] = useState([]);
+  const [placementDrives, setPlacementDrives] = useState([]); // Initialize as an empty array
+  const [error, setError] = useState('');
 
+  useEffect(() => {
     const fetchPlacementDrives = async () => {
-        const { data } = await axios.get('/api/placement-drives');
-        setPlacementDrives(data);
+      try {
+        const response = await api.get('/placement-drives'); // Adjust the API endpoint as necessary
+        setPlacementDrives(response.data); // Ensure response.data is an array
+      } catch (error) {
+        console.error('Error fetching placement drives:', error);
+        setError('Could not fetch placement drives.');
+      }
     };
 
-    useEffect(() => {
-        fetchPlacementDrives();
-    }, []);
+    fetchPlacementDrives();
+  }, []);
 
-    return (
-        <div className="container">
-            <h1>Admin Dashboard</h1>
-            <div className="card">
-                <h2>Placement Drives</h2>
-                <ul>
-                    {placementDrives.map(drive => (
-                        <li key={drive._id}>{drive.name}</li>
-                    ))}
-                </ul>
-            </div>
-        </div>
-    );
+  return (
+    <div>
+      <h1>Placement Drives</h1>
+      {error && <div className="error">{error}</div>}
+      {Array.isArray(placementDrives) && placementDrives.length > 0 ? (
+        placementDrives.map((drive) => (
+          <div key={drive.id}>{drive.name}</div> // Adjust according to your data structure
+        ))
+      ) : (
+        <p>No placement drives available.</p>
+      )}
+    </div>
+  );
 };
 
 export default Admin;
